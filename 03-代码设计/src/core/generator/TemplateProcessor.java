@@ -165,7 +165,7 @@ public class TemplateProcessor {
 	}
 	
 	//VAR提取
-	public String staticVarExtract(String filename) throws Exception {
+	public String staticVarExtsract(String filename) throws Exception {
 		
 		String savedFile=null;
 		DataSourceConfig dsc = DataSourceConfig.newInstance();

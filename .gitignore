@@ -9,3 +9,4 @@ output.doc
 *.class
 03-代码设计/.settings
 .~*.*
+/bin/

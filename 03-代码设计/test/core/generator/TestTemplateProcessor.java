@@ -11,7 +11,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.List;
-
+import java.util.ArrayList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -53,21 +53,45 @@ public class TestTemplateProcessor implements DataSourceType{
 
 	@Before
 	public void setUp() throws Exception {
+		DataSourceConfig dsc = EasyMock.createMock(DataSourceConfig.class);
+		EasyMock.expect(dsc.getConstDataSource()).andReturn(null);
+		DataHolder dh1 = EasyMock.createMock(DataHolder.class);
+		DataHolder dh2 = EasyMock.createMock(DataHolder.class);
+		DataHolder dh3 = EasyMock.createMock(DataHolder.class);
+		EasyMock.expect(dh1.getValue()).andStubReturn("Female");
+		EasyMock.expect(dh2.getValue()).andStubReturn("1");
+		EasyMock.expect(dh3.getValue()).andStubReturn("1.0");
+		EasyMock.expect(dh3.getExpr()).andStubReturn("${num}+${readme}");
+		EasyMock.expect(dh3.fillValue()).andStubReturn(null);
 
-		//以下采用Mock对象的方式，做测试前的准备。
-		//与以上方法比较，好处是降低SUT（TemplateProcessor类）与DOC（DataSourceConfig类）之间的耦合性，解耦它们。
-		//从而使得定位缺陷变得容易。
-		//参照流程：
-		//1. 使用EasyMock建立一个DataSourceConfig类的一个Mock对象实例；
-		//2. 录制该实例的STUB模式和行为模式（针对的是非静态方法）；
-		//3. 使用PowerMock建立DataSourceConfig类的静态Mock；
-		//4. 录制该静态Mock的行为模式（针对的是静态方法）；
-        //------------------------------------------------
-        //以上流程请在这里实现：
-        //
-        //
-        // 这里写代码
-        //
+
+		ArrayList<DataHolder> vars = new ArrayList<DataHolder>();
+		vars.add(dh1);
+		vars.add(dh2);
+		vars.add(dh3);
+
+		ConstDataSource ds = EasyMock.createMock(ConstDataSource.class);
+		ds.setVars(vars);
+		EasyMock.expect(ds.getVars()).andStubReturn(vars);
+		EasyMock.expect(ds.getDataHolder("sex")).andStubReturn(dh1);
+		EasyMock.expect(ds.getDataHolder("readme")).andStubReturn(dh2);
+		EasyMock.expect(ds.getDataHolder("testexpr")).andStubReturn(dh3);
+		EasyMock.expect(ds.getType()).andStubReturn("");
+
+		ArrayList<DataSource> dss = new ArrayList<DataSource>();
+		dss.add(ds);
+
+
+		EasyMock.expect(dsc.getDataSources()).andStubReturn(dss);
+		EasyMock.expect(dsc.getFilename()).andStubReturn("test");
+		EasyMock.expect(dsc.getConstDataSource()).andStubReturn(ds);
+		EasyMock.expect(dsc.getDataSource(null)).andStubReturn(ds);
+
+		EasyMock.replay( ds, dh1, dh2, dh3);
+		PowerMock.mockStatic(DataSourceConfig.class);
+		EasyMock.expect(DataSourceConfig.newInstance()).andStubReturn(dsc);
+
+
         //------------------------------------------------
 		//5. 重放所有的行为。
 		PowerMock.replayAll(dsc);
